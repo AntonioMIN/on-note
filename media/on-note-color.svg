@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <path d="M22 25 L90 25 L110 45 L110 109 L22 109 Z"
+        fill="#785A3C" opacity="0.14"/>
+  <path d="M20 22 L88 22 L108 42 L108 106 L20 106 Z"
+        fill="#FFF7ED" stroke="#E8D9C1" stroke-width="1"/>
+  <path d="M88 22 L88 42 L108 42 Z"
+        fill="#F5E4CB" stroke="#E8D9C1" stroke-width="1"/>
+  <text x="57" y="75"
+        font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif"
+        font-size="40"
+        font-weight="600"
+        fill="#5A4B8C"
+        text-anchor="middle"
+        letter-spacing="-1.2">on</text>
+  <circle cx="85" cy="72" r="5.5" fill="#F4A896"/>
+</svg>

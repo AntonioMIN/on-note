@@ -3,6 +3,7 @@
   "displayName": "on-note",
   "description": "Feat and easy note taking",
   "version": "0.0.1",
+  "icon": "media/on-note-icon.png",
   "engines": {
     "vscode": "^1.116.0"
   },
