@@ -1,6 +1,14 @@
-# On Note
+<p align="center">
+  <img src="https://raw.githubusercontent.com/AntonioMIN/on-note/main/media/on-note-icon.png" alt="On Note icon" width="128" />
+</p>
 
-Fast and easy note taking, right in the VS Code sidebar.
+<h1 align="center">On Note</h1>
+
+<p align="center">Fast and easy note taking, right in the VS Code sidebar.</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/AntonioMIN/on-note/main/media/demo.png" alt="On Note sidebar showing a Markdown note with syntax highlighting" width="360" />
+</p>
 
 On Note adds a dedicated activity bar view where you can jot down Markdown notes without ever leaving your editor. Notes are stored per-user (not per-workspace), so the same notes follow you across every project.
 
