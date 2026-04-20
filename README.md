@@ -1,71 +1,45 @@
-# on-note README
+# On Note
 
-This is the README for your extension "on-note". After writing up a brief description, we recommend including the following sections.
+Fast and easy note taking, right in the VS Code sidebar.
+
+On Note adds a dedicated activity bar view where you can jot down Markdown notes without ever leaving your editor. Notes are stored per-user (not per-workspace), so the same notes follow you across every project.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Sidebar note editor** — a Markdown textarea lives in the activity bar, always one click away.
+- **Markdown syntax highlighting** — headings, code fences, links, lists, and more are colored in real time via Prism.
+- **Autosave** — changes are persisted ~500ms after you stop typing. No save button, no lost edits.
+- **Note management** — create, open, rename, and delete notes from the view title bar or the Command Palette.
+- **Global storage** — notes live under the extension's `globalStorageUri`, so they persist across workspaces and VS Code sessions.
 
-For example if there is an image subfolder under your extension project workspace:
+## Usage
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Click the **On Note** icon in the activity bar.
+2. Use the toolbar buttons (or run `On Note: New Note` from the Command Palette) to create your first note.
+3. Start writing. Changes save automatically.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Commands
+
+| Command | ID |
+|---|---|
+| `On Note: New Note` | `on-note.newNote` |
+| `On Note: Open Note` | `on-note.openNote` |
+| `On Note: Rename Note` | `on-note.renameNote` |
+| `On Note: Delete Note` | `on-note.deleteNote` |
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- VS Code `1.116.0` or newer.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Only Markdown highlighting is active; fenced code blocks are not individually re-highlighted per language.
+- Notes are stored in VS Code's global storage directory and are not synced across machines unless you use Settings Sync with the global storage opt-in.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+See [CHANGELOG.md](./CHANGELOG.md).
 
-### 1.0.0
+## License
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+[MIT](./LICENSE)

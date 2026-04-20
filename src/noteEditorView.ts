@@ -30,6 +30,7 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
 	async switchTo(name: NoteName): Promise<void> {
 		this.currentNote = name;
 		await this.context.globalState.update(CURRENT_NOTE_KEY, name);
+		await vscode.commands.executeCommand(`${NoteEditorView.viewId}.focus`);
 		await this.pushCurrent();
 	}
 

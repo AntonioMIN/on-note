@@ -5,7 +5,13 @@ node_modules/**
 src/**
 .gitignore
 .yarnrc
+.npmrc
 esbuild.js
+biome.json
+.biomeignore
+pnpm-lock.yaml
+CLAUDE.md
+DEVELOPMENT.md
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/eslint.config.mjs

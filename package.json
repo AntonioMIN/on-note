@@ -1,15 +1,46 @@
 {
   "name": "on-note",
-  "displayName": "on-note",
-  "description": "Feat and easy note taking",
+  "displayName": "On Note",
+  "description": "Fast and easy note taking",
   "version": "0.0.1",
+  "publisher": "stocel",
+  "license": "MIT",
   "icon": "media/on-note-icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AntonioMIN/on-note.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AntonioMIN/on-note/issues"
+  },
+  "homepage": "https://github.com/AntonioMIN/on-note#readme",
   "engines": {
     "vscode": "^1.116.0"
   },
   "categories": [
+    "Notebooks",
     "Other"
   ],
+  "keywords": [
+    "notes",
+    "note-taking",
+    "markdown",
+    "sidebar",
+    "scratchpad"
+  ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "extensionKind": [
+    "ui"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
@@ -94,7 +125,10 @@
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "check-types": "tsc --noEmit",
     "lint": "biome check --write src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "vsce:package": "vsce package --no-dependencies",
+    "vsce:publish": "vsce publish --no-dependencies",
+    "ovsx:publish": "ovsx publish --no-dependencies"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.12",
@@ -104,8 +138,10 @@
     "@types/vscode": "^1.116.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.9.1",
     "esbuild": "^0.27.3",
     "npm-run-all": "^4.1.5",
+    "ovsx": "^0.10.11",
     "typescript": "^5.9.3"
   },
   "dependencies": {
