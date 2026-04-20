@@ -12,12 +12,74 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "on-note",
+          "title": "On Note",
+          "icon": "media/on-note.svg"
+        }
+      ]
+    },
+    "views": {
+      "on-note": [
+        {
+          "id": "on-note.editor",
+          "name": "Notes",
+          "type": "webview"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "on-note.helloWorld",
-        "title": "Hello World"
+        "command": "on-note.newNote",
+        "title": "New Note",
+        "category": "On Note",
+        "icon": "$(add)"
+      },
+      {
+        "command": "on-note.openNote",
+        "title": "Open Note",
+        "category": "On Note",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "on-note.renameNote",
+        "title": "Rename Note",
+        "category": "On Note",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "on-note.deleteNote",
+        "title": "Delete Note",
+        "category": "On Note",
+        "icon": "$(trash)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "on-note.newNote",
+          "when": "view == on-note.editor",
+          "group": "navigation@1"
+        },
+        {
+          "command": "on-note.openNote",
+          "when": "view == on-note.editor",
+          "group": "navigation@2"
+        },
+        {
+          "command": "on-note.renameNote",
+          "when": "view == on-note.editor",
+          "group": "navigation@3"
+        },
+        {
+          "command": "on-note.deleteNote",
+          "when": "view == on-note.editor",
+          "group": "navigation@4"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
