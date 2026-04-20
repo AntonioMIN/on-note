@@ -14,7 +14,7 @@ Package manager is **pnpm** (see `.npmrc` and `pnpm-lock.yaml`).
 - `pnpm run watch` — runs `watch:esbuild` and `watch:tsc` in parallel (npm-run-all). Use this during development; F5 in VS Code launches the Extension Development Host against this output.
 - `pnpm run package` — production build (`--production` → minified, no sourcemaps).
 - `pnpm run check-types` — `tsc --noEmit` only.
-- `pnpm run lint` — `eslint src`.
+- `pnpm run lint` — `biome check --write src` (apply lint fixes + formatter).
 - `pnpm test` — runs `@vscode/test-cli` (`vscode-test`). `pretest` first runs `compile-tests` (tsc → `out/`) **and** `compile` (esbuild → `dist/`), because tests are loaded from `out/test/**/*.test.js` while the extension itself is loaded from `dist/extension.js`.
 - Single test: there is no npm script — filter via mocha grep, e.g. `npx vscode-test --grep "Sample test"` after `pnpm run compile-tests`.
 
@@ -27,10 +27,10 @@ Two separate TypeScript build pipelines coexist and you need to respect the spli
 
 Consequence: changing tsconfig `rootDir` or the esbuild `entryPoints`/`outfile` will break one or both flows. The `pretest` script runs both builds sequentially on purpose — don't collapse them.
 
-Extension entry is `activate(context)` in [src/extension.ts](src/extension.ts); commands must be both registered via `vscode.commands.registerCommand` *and* declared in `package.json#contributes.commands` to appear in the command palette.
+Extension entry is `activate(context)` in [src/extension.ts](src/extension.ts); commands must be both registered via `vscode.commands.registerCommand` _and_ declared in `package.json#contributes.commands` to appear in the command palette.
 
 ## Toolchain notes
 
 - Target: VS Code `^1.116.0`, Node types `22.x`, TS target ES2022 / module Node16, strict mode on.
-- ESLint 9 flat config (`eslint.config.mjs`) using `typescript-eslint`.
+- Biome 2.x (`biome.json`) handles both linting and formatting; the `lint` script runs `biome check`. Editor format-on-save uses the `biomejs.biome` extension (recommended in `.vscode/extensions.json`).
 - `.vscodeignore` controls what gets packaged into the `.vsix` — only `dist/`, `README.md`, etc. ship; `src/` and `out/` do not.
