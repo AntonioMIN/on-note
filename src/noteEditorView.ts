@@ -41,7 +41,12 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
 
 	async resolveWebviewView(webviewView: vscode.WebviewView): Promise<void> {
 		this.view = webviewView;
-		webviewView.webview.options = { enableScripts: true };
+		webviewView.webview.options = {
+			enableScripts: true,
+			localResourceRoots: [
+				vscode.Uri.joinPath(this.context.extensionUri, "dist"),
+			],
+		};
 		webviewView.webview.html = this.renderHtml(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage((msg: WebviewInbound) => {
@@ -95,10 +100,13 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
 
 	private renderHtml(webview: vscode.Webview): string {
 		const nonce = generateNonce();
+		const scriptUri = webview.asWebviewUri(
+			vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview.js"),
+		);
 		const csp = [
 			"default-src 'none'",
 			`style-src ${webview.cspSource} 'unsafe-inline'`,
-			`script-src 'nonce-${nonce}'`,
+			`script-src ${webview.cspSource} 'nonce-${nonce}'`,
 		].join("; ");
 
 		return `<!DOCTYPE html>
@@ -126,22 +134,53 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  #editor {
+  #editor-wrap {
+    position: relative;
     flex: 1 1 auto;
-    width: 100%;
-    box-sizing: border-box;
-    resize: none;
-    border: 0;
-    outline: none;
-    padding: 10px;
+    overflow: hidden;
     background: var(--vscode-editor-background);
-    color: var(--vscode-editor-foreground);
+  }
+  #editor, #highlight {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 10px;
+    border: 0;
+    box-sizing: border-box;
     font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
     font-size: var(--vscode-editor-font-size, 13px);
     line-height: 1.5;
     tab-size: 2;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
-  #editor:disabled { opacity: 0.6; }
+  #editor {
+    resize: none;
+    outline: none;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--vscode-editorCursor-foreground, var(--vscode-foreground));
+    z-index: 1;
+    overflow: auto;
+  }
+  #editor::selection {
+    background: var(--vscode-editor-selectionBackground);
+  }
+  #highlight {
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+    color: var(--vscode-editor-foreground);
+  }
+  #highlight code {
+    display: block;
+    font: inherit;
+    white-space: inherit;
+    word-wrap: inherit;
+    overflow-wrap: inherit;
+    min-height: 100%;
+  }
   #empty {
     flex: 1 1 auto;
     display: flex; align-items: center; justify-content: center;
@@ -150,63 +189,75 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
     font-size: 12px;
   }
   .hidden { display: none !important; }
+
+  /* Prism tokens — Dark+ palette (default, also applied in high contrast) */
+  .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #6a9955; font-style: italic; }
+  .token.punctuation { color: #808080; }
+  .token.property, .token.tag, .token.constant, .token.symbol, .token.deleted { color: #569cd6; }
+  .token.boolean, .token.number { color: #b5cea8; }
+  .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #ce9178; }
+  .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string, .token.variable { color: #d4d4d4; }
+  .token.atrule, .token.attr-value, .token.keyword { color: #569cd6; }
+  .token.function, .token.class-name { color: #dcdcaa; }
+  .token.regex, .token.important { color: #d16969; }
+  .token.important, .token.bold { font-weight: bold; }
+  .token.italic { font-style: italic; }
+
+  /* Markdown-specific */
+  .token.title, .token.title .token.punctuation { color: #4ec9b0; font-weight: bold; }
+  .token.list.punctuation { color: #569cd6; }
+  .token.url { color: #569cd6; text-decoration: underline; }
+  .token.url-reference .token.string, .token.url .token.content { color: #9cdcfe; }
+  .token.blockquote.punctuation { color: #6a9955; }
+  .token.hr.punctuation { color: #808080; }
+  .token.code-snippet { color: #ce9178; background: rgba(255,255,255,0.04); }
+  .token.table-header { color: #4ec9b0; font-weight: bold; }
+
+  /* Light+ palette */
+  body.vscode-light .token.comment,
+  body.vscode-light .token.prolog,
+  body.vscode-light .token.doctype,
+  body.vscode-light .token.cdata { color: #008000; }
+  body.vscode-light .token.punctuation { color: #555555; }
+  body.vscode-light .token.property,
+  body.vscode-light .token.tag,
+  body.vscode-light .token.constant,
+  body.vscode-light .token.symbol,
+  body.vscode-light .token.deleted { color: #0000ff; }
+  body.vscode-light .token.boolean,
+  body.vscode-light .token.number { color: #098658; }
+  body.vscode-light .token.selector,
+  body.vscode-light .token.attr-name,
+  body.vscode-light .token.string,
+  body.vscode-light .token.char,
+  body.vscode-light .token.builtin,
+  body.vscode-light .token.inserted { color: #a31515; }
+  body.vscode-light .token.operator,
+  body.vscode-light .token.entity,
+  body.vscode-light .token.variable { color: #333333; }
+  body.vscode-light .token.atrule,
+  body.vscode-light .token.attr-value,
+  body.vscode-light .token.keyword { color: #0000ff; }
+  body.vscode-light .token.function,
+  body.vscode-light .token.class-name { color: #795e26; }
+  body.vscode-light .token.regex,
+  body.vscode-light .token.important { color: #af00db; }
+  body.vscode-light .token.title,
+  body.vscode-light .token.title .token.punctuation { color: #267f99; }
+  body.vscode-light .token.list.punctuation { color: #0000ff; }
+  body.vscode-light .token.url { color: #0000ee; }
+  body.vscode-light .token.blockquote.punctuation { color: #008000; }
+  body.vscode-light .token.code-snippet { color: #a31515; background: rgba(0,0,0,0.04); }
 </style>
 </head>
 <body>
   <header id="title">No note</header>
-  <textarea id="editor" class="hidden" spellcheck="false" placeholder="# Start writing…"></textarea>
+  <div id="editor-wrap" class="hidden">
+    <pre id="highlight" aria-hidden="true"><code class="language-markdown"></code></pre>
+    <textarea id="editor" spellcheck="false" placeholder="# Start writing…"></textarea>
+  </div>
   <div id="empty">Create a note with the + button.</div>
-  <script nonce="${nonce}">
-    const vscode = acquireVsCodeApi();
-    const editor = document.getElementById('editor');
-    const title = document.getElementById('title');
-    const empty = document.getElementById('empty');
-
-    let current = null;
-    let saveTimer = null;
-
-    function showEditor(name, content) {
-      current = name;
-      title.textContent = name;
-      editor.value = content;
-      editor.classList.remove('hidden');
-      empty.classList.add('hidden');
-    }
-
-    function showEmpty() {
-      current = null;
-      title.textContent = 'No note';
-      editor.classList.add('hidden');
-      empty.classList.remove('hidden');
-    }
-
-    editor.addEventListener('input', () => {
-      if (current === null) return;
-      if (saveTimer) clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => {
-        vscode.postMessage({ type: 'change', content: editor.value });
-      }, 500);
-    });
-
-    editor.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const s = editor.selectionStart;
-        const en = editor.selectionEnd;
-        editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(en);
-        editor.selectionStart = editor.selectionEnd = s + 2;
-        editor.dispatchEvent(new Event('input'));
-      }
-    });
-
-    window.addEventListener('message', (event) => {
-      const msg = event.data;
-      if (msg.type === 'load') showEditor(msg.name, msg.content);
-      else if (msg.type === 'empty') showEmpty();
-    });
-
-    vscode.postMessage({ type: 'ready' });
-  </script>
+  <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
 	}

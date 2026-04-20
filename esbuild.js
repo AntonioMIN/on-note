@@ -23,30 +23,45 @@ const esbuildProblemMatcherPlugin = {
 	},
 };
 
+/** @type {import('esbuild').BuildOptions} */
+const extensionConfig = {
+	entryPoints: ['src/extension.ts'],
+	bundle: true,
+	format: 'cjs',
+	minify: production,
+	sourcemap: !production,
+	sourcesContent: false,
+	platform: 'node',
+	outfile: 'dist/extension.js',
+	external: ['vscode'],
+	logLevel: 'silent',
+	plugins: [esbuildProblemMatcherPlugin],
+};
+
+/** @type {import('esbuild').BuildOptions} */
+const webviewConfig = {
+	entryPoints: ['src/webview/editor.ts'],
+	bundle: true,
+	format: 'iife',
+	minify: production,
+	sourcemap: !production,
+	sourcesContent: false,
+	platform: 'browser',
+	outfile: 'dist/webview.js',
+	logLevel: 'silent',
+	plugins: [esbuildProblemMatcherPlugin],
+};
+
 async function main() {
-	const ctx = await esbuild.context({
-		entryPoints: [
-			'src/extension.ts'
-		],
-		bundle: true,
-		format: 'cjs',
-		minify: production,
-		sourcemap: !production,
-		sourcesContent: false,
-		platform: 'node',
-		outfile: 'dist/extension.js',
-		external: ['vscode'],
-		logLevel: 'silent',
-		plugins: [
-			/* add to the end of plugins array */
-			esbuildProblemMatcherPlugin,
-		],
-	});
+	const contexts = await Promise.all([
+		esbuild.context(extensionConfig),
+		esbuild.context(webviewConfig),
+	]);
 	if (watch) {
-		await ctx.watch();
+		await Promise.all(contexts.map((c) => c.watch()));
 	} else {
-		await ctx.rebuild();
-		await ctx.dispose();
+		await Promise.all(contexts.map((c) => c.rebuild()));
+		await Promise.all(contexts.map((c) => c.dispose()));
 	}
 }
 
