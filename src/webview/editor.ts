@@ -13,6 +13,7 @@ import "prismjs/components/prism-go";
 
 type WebviewOutbound =
 	| { type: "load"; name: string; content: string }
+	| { type: "reload"; name: string; content: string }
 	| { type: "empty" };
 
 declare function acquireVsCodeApi(): {
@@ -29,6 +30,7 @@ const wrap = document.getElementById("editor-wrap") as HTMLElement;
 
 let current: string | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let lastSavedValue = "";
 
 function renderHighlight(value: string): void {
 	const withTrailing = value.endsWith("\n") ? `${value} ` : `${value}\n`;
@@ -43,9 +45,24 @@ function showEditor(name: string, content: string): void {
 	current = name;
 	title.textContent = name;
 	editor.value = content;
+	lastSavedValue = content;
 	renderHighlight(content);
 	wrap.classList.remove("hidden");
 	empty.classList.add("hidden");
+}
+
+function applyReload(content: string): void {
+	if (editor.value !== lastSavedValue) {
+		return;
+	}
+	const s = editor.selectionStart;
+	const e = editor.selectionEnd;
+	editor.value = content;
+	const len = content.length;
+	editor.selectionStart = Math.min(s, len);
+	editor.selectionEnd = Math.min(e, len);
+	lastSavedValue = content;
+	renderHighlight(content);
 }
 
 function showEmpty(): void {
@@ -64,6 +81,7 @@ editor.addEventListener("input", () => {
 		clearTimeout(saveTimer);
 	}
 	saveTimer = setTimeout(() => {
+		lastSavedValue = editor.value;
 		vscode.postMessage({ type: "change", content: editor.value });
 	}, 500);
 });
@@ -88,6 +106,10 @@ window.addEventListener("message", (event: MessageEvent<WebviewOutbound>) => {
 	const msg = event.data;
 	if (msg.type === "load") {
 		showEditor(msg.name, msg.content);
+	} else if (msg.type === "reload") {
+		if (msg.name === current) {
+			applyReload(msg.content);
+		}
 	} else if (msg.type === "empty") {
 		showEmpty();
 	}

@@ -18,21 +18,28 @@ export type NoteName = string;
 export class NoteStore {
 	constructor(private readonly context: vscode.ExtensionContext) {}
 
-	private get dir(): vscode.Uri {
+	get notesDir(): vscode.Uri {
 		return vscode.Uri.joinPath(this.context.globalStorageUri, NOTES_DIR);
 	}
 
 	private fileUri(name: NoteName): vscode.Uri {
-		return vscode.Uri.joinPath(this.dir, name + EXT);
+		return vscode.Uri.joinPath(this.notesDir, name + EXT);
+	}
+
+	static filenameToNoteName(fileName: string): NoteName | undefined {
+		if (!fileName.endsWith(EXT)) {
+			return undefined;
+		}
+		return fileName.slice(0, -EXT.length);
 	}
 
 	async ensureDir(): Promise<void> {
-		await vscode.workspace.fs.createDirectory(this.dir);
+		await vscode.workspace.fs.createDirectory(this.notesDir);
 	}
 
 	async list(): Promise<NoteName[]> {
 		try {
-			const entries = await vscode.workspace.fs.readDirectory(this.dir);
+			const entries = await vscode.workspace.fs.readDirectory(this.notesDir);
 			return entries
 				.filter(
 					([name, type]) => type === vscode.FileType.File && name.endsWith(EXT),

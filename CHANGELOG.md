@@ -5,6 +5,15 @@ All notable changes to the "on-note" extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.2] - 2026-04-21
+
+### Added
+- Real-time synchronization of the current note across multiple VS Code windows. External file changes are detected via a file system watcher and applied to the sidebar editor.
+
+### Fixed
+- Edits made to the same note in different windows no longer clobber each other. When the local buffer is in sync with the last save (i.e., the user is not actively typing), external changes are applied automatically with the cursor position preserved. In-progress typing is protected; the next local save wins (last-write-wins).
+- External deletion of the currently open note now falls back to another note (or an empty state), instead of leaving a stale view.
+
 ## [0.0.1] - 2026-04-20
 
 ### Added

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import type { NoteName, NoteStore } from "./noteStore";
+import { type NoteName, NoteStore } from "./noteStore";
 
 const CURRENT_NOTE_KEY = "on-note.currentNote";
 const DEFAULT_NOTE = "welcome";
@@ -8,6 +8,7 @@ type WebviewInbound = { type: "ready" } | { type: "change"; content: string };
 
 type WebviewOutbound =
 	| { type: "load"; name: NoteName; content: string }
+	| { type: "reload"; name: NoteName; content: string }
 	| { type: "empty" };
 
 export class NoteEditorView implements vscode.WebviewViewProvider {
@@ -15,12 +16,19 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
 
 	private view?: vscode.WebviewView;
 	private currentNote?: NoteName;
+	private lastDiskContent?: string;
 
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		private readonly store: NoteStore,
 	) {
 		this.currentNote = context.globalState.get<NoteName>(CURRENT_NOTE_KEY);
+
+		const pattern = new vscode.RelativePattern(store.notesDir, "*.md");
+		const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+		watcher.onDidChange((uri) => void this.onExternalChange(uri));
+		watcher.onDidDelete((uri) => void this.onExternalDelete(uri));
+		context.subscriptions.push(watcher);
 	}
 
 	getCurrentNote(): NoteName | undefined {
@@ -36,6 +44,7 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
 
 	async clearCurrent(): Promise<void> {
 		this.currentNote = undefined;
+		this.lastDiskContent = undefined;
 		await this.context.globalState.update(CURRENT_NOTE_KEY, undefined);
 		this.post({ type: "empty" });
 	}
@@ -68,6 +77,7 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
 			return;
 		}
 		try {
+			this.lastDiskContent = content;
 			await this.store.write(this.currentNote, content);
 		} catch (err) {
 			vscode.window.showErrorMessage(
@@ -92,7 +102,41 @@ export class NoteEditorView implements vscode.WebviewViewProvider {
 			await this.context.globalState.update(CURRENT_NOTE_KEY, name);
 		}
 		const content = await this.store.read(name);
+		this.lastDiskContent = content;
 		this.post({ type: "load", name, content });
+	}
+
+	private async onExternalChange(uri: vscode.Uri): Promise<void> {
+		const fileName = uri.path.split("/").pop() ?? "";
+		const name = NoteStore.filenameToNoteName(fileName);
+		if (!name || name !== this.currentNote || !this.view) {
+			return;
+		}
+		let content: string;
+		try {
+			content = await this.store.read(name);
+		} catch {
+			return;
+		}
+		if (content === this.lastDiskContent) {
+			return;
+		}
+		this.lastDiskContent = content;
+		this.post({ type: "reload", name, content });
+	}
+
+	private async onExternalDelete(uri: vscode.Uri): Promise<void> {
+		const fileName = uri.path.split("/").pop() ?? "";
+		const name = NoteStore.filenameToNoteName(fileName);
+		if (!name || name !== this.currentNote) {
+			return;
+		}
+		const remaining = await this.store.list();
+		if (remaining.length > 0) {
+			await this.switchTo(remaining[0]);
+		} else {
+			await this.clearCurrent();
+		}
 	}
 
 	private post(msg: WebviewOutbound): void {

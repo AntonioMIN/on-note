@@ -17,6 +17,7 @@ On Note adds a dedicated activity bar view where you can jot down Markdown notes
 - **Sidebar note editor** — a Markdown textarea lives in the activity bar, always one click away.
 - **Markdown syntax highlighting** — headings, code fences, links, lists, and more are colored in real time via Prism.
 - **Autosave** — changes are persisted ~500ms after you stop typing. No save button, no lost edits.
+- **Multi-window sync** — open the same note across multiple VS Code windows and edits propagate automatically. Cursor position is preserved and in-progress typing is protected.
 - **Note management** — create, open, rename, and delete notes from the view title bar or the Command Palette.
 - **Global storage** — notes live under the extension's `globalStorageUri`, so they persist across workspaces and VS Code sessions.
 
